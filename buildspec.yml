@@ -1,0 +1,32 @@
+# STARTER buildspec - it contains mistakes. Find and fix them.
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "CHANGE_ME"        # e.g. your exam region
+    ECR_REPO: "CHANGE_ME"          # your ECR repository name
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install -r app/requirements.txt
+  pre_build:
+    commands:
+      # TODO: authenticate Docker to ECR before pushing
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPO_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO
+      # TODO: build a short image tag from the commit id
+  build:
+    commands:
+      - cd app && pytest && cd ..
+      - docker build -t $REPO_URI:$IMAGE_TAG app
+  post_build:
+    commands:
+      - docker push $REPO_URI:$IMAGE_TAG
+      - printf '[{"name":"web","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinition.json
+
+artifacts:
+  files:
+    - imagedefinition.json

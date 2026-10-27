@@ -1,0 +1,24 @@
+{
+  "family": "cicd-exam-app",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "<ECR_URI>:placeholder",
+      "essential": true,
+      "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cicd-exam-app",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "app"
+        }
+      }
+    }
+  ]
+}
